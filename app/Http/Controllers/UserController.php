@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Caffeinated\Shinobi\Models\Permission;
 use Caffeinated\Shinobi\Models\Role;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,8 @@ class UserController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create() {
-		return view('users.create');
+
+		return view('users.create', compact('permissions'));
 	}
 
 	/**
@@ -34,8 +36,9 @@ class UserController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request) {
-		$User = User::create($request->all());
-		return redirect()->route('users.edit', $User->id)
+		$user = User::create($request->all());
+		$user->permissions()->sync($request->get('permissions'));
+		return redirect()->route('users.edit', $user->id)
 			->width('info', 'Usuario Guardado con Éxito!');
 	}
 
@@ -58,7 +61,8 @@ class UserController extends Controller {
 	public function edit(User $user) {
 
 		$roles = Role::get();
-		return view('users.edit', compact('user', 'roles'));
+		$permissions = Permission::get();
+		return view('users.edit', compact('user', 'roles', 'permissions'));
 	}
 
 	/**
